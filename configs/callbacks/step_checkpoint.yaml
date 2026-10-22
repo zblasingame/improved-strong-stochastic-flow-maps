@@ -1,0 +1,15 @@
+step_checkpoint:
+  _target_: lightning.pytorch.callbacks.ModelCheckpoint
+  dirpath: null # directory to save the model file
+  filename: null # checkpoint filename
+  monitor: null # no monitored metric: save unconditionally at the step interval
+  verbose: False # verbosity mode
+  save_last: False # last.ckpt is owned by the model_checkpoint callback
+  save_top_k: -1 # keep every 50k-step snapshot (never delete)
+  mode: "min" # "max" means higher metric value is better, can be also "min"
+  auto_insert_metric_name: False # when True, the checkpoints filenames will contain the metric name
+  save_weights_only: False # if True, then only the model's weights will be saved
+  every_n_train_steps: 50000 # snapshot the run every 50k training steps
+  train_time_interval: null # checkpoints are monitored at the specified time interval
+  every_n_epochs: null # number of epochs between checkpoints
+  save_on_train_epoch_end: False # avoid double saves at epoch end; model_checkpoint owns that

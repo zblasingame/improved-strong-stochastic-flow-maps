@@ -1,0 +1,22 @@
+defaults:
+  - schedule: geometric
+  - optimizer: adamw
+
+_target_: src.models.components.fkc.diffusion_baseline.Gaussian40ScoreModule
+net:
+  _target_: src.models.components.fkc.diffusion_baseline.Gaussian40ScoreMLP
+  hidden_size: 512
+  depth: 6
+  time_emb_size: 128
+  spatial_input_scale: 50.0
+  score_scale_floor: 0.04253856
+problem:
+  _target_: src.models.components.fkc.problem.make_fkc_problem
+  case: gaussian40
+  beta: 1
+  schedule: ${model.schedule}
+pool_num_s: 64
+pool_per_s: 2048
+ema_decay: 0.999
+optimizer:
+  lr: 4.0e-4

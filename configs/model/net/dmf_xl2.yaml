@@ -1,0 +1,21 @@
+# DMF-XL/2 student with fixed Brownian-coefficient injection and LoRA, shared by
+# every ImageNet objective. The frozen base DMFT uses the Triton attention path:
+# plain SDPA outside forward-mode AD, and a custom Triton kernel that carries the
+# forward-mode tangent for the Wong-Zakai JVP losses (iMF / LMD). 256 latent
+# tokens = 2 x 128 satisfy the kernel's block divisibility.
+_target_: src.models.components.fixed_coefficient_ssfm.FixedCoefficientDMFEIEulerSSFM
+
+base:
+  _target_: src.models.components.dmf.load_dmf_xl2
+  checkpoint_path: ${oc.env:DMF_CHECKPOINT_PATH,${paths.data_dir}/checkpoints/dmf_xl_2_256.pt}
+  attn_func: triton
+
+lora_rank: 16
+lora_alpha: 16.0
+# Fixed coefficient count consumed by the adapter (must equal model.loss.degree).
+degree: 3
+# Spatial levy residual: [X, c_1..c_N] -> C, image tokens + h * C.
+modulation: residual
+# Unit-variance coefficient features (the reference convention); false feeds
+# the raw coefficients at their natural scale (see the adapter docstring).
+normalize_coefficients: true

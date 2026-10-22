@@ -1,0 +1,46 @@
+defaults:
+  - net: ssfm_mlp
+  - optimizer: adamw
+  - scheduler: reduce_on_plateau
+
+_target_: src.models.ssfm_module.SSFMLitModule
+
+# 1D non-linear SDE form grid: drift matching +
+# (PSD|ESD|LSD|dESD|dLSD) on (WZ|DS|None), all riding the SAME
+# closed-form-increment map Psi = x + (t-s) u + (M_t - M_s) (an euler
+# net; no diffusion head is ever learned). The arm selects only the
+# TRAINING objective: wz = the derivative formalism (Mdot in the
+# fields), ds = the Z-space RODE (local anchoring Z_t = X_t - M_t + M_s),
+# none = the non-derivative family.
+schedule: null
+loss:
+  _target_: src.models.components.losses.toy1d.Toy1DSSFMLoss
+  beta_min: 0.1
+  beta_max: 20.0
+  # Reverse-VP pure-noise end: X_0 ~ N(0, 1).
+  init_std: 1.0
+  arm: wz
+  distillation: esd
+  # wz: null -> ayf_emd (ESD) / ayf_lmd (LSD); ds: null -> 2D Doss
+  # conventions, else ayf_emd|imf (ESD) / ayf_lmd (LSD). The plain
+  # (none) arm rejects forms and carries the non-derivative family:
+  # psd, discrete_esd, discrete_lsd.
+  form: null
+  p: 0.25
+  degree: 3
+  delta_t: 0.05
+  sim_steps: 128
+
+# Algorithm 1 (line 16) prescribes a plain EMA teacher: theta_hat <- beta
+# theta_hat + (1 - beta) theta. Vanilla EMA with decay 0.999 (~1k-step
+# horizon) suits the 5k-step toy.
+ema_decay: 0.999
+scheduler_interval: epoch
+scheduler_monitor: train/loss
+net:
+  dim: 1
+  parameterization: euler
+  max_degree: 3
+optimizer:
+  lr: 1.0e-3
+compile: false

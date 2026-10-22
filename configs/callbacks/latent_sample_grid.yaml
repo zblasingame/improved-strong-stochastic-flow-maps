@@ -1,0 +1,18 @@
+# Loaded via `/callbacks@callbacks.sample_grid: latent_sample_grid`, so fields
+# must be flat rather than wrapped in another `sample_grid` mapping.
+_target_: src.models.latent_callbacks.LatentSampleGridCallback
+vae_name: stabilityai/sd-vae-ft-mse
+max_steps: 16
+num_samples: 8
+degree: ${model.loss.degree}
+every_n_epochs: null
+every_n_steps: 1000
+initial_steps: [100]
+seed: 0
+log_key: val/sample_grid
+num_classes: 1000
+label_seed: 0
+cfg_scale: null
+log_on_sanity: false
+use_ema: true
+log_independent_brownian_grid: true # second grid: fresh Brownian path per step-count row

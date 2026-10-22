@@ -1,0 +1,15 @@
+# @package _global_
+
+# Ablation ladder (paper Table 1, "+ exponential lift"): SSFM with the
+# exponential lift. Learned noise g_st (.) W_{s,t} (random init) on the lifted
+# step (alpha_s / alpha_t) x + c_st u_st + g W; EM-step diagonal (em_dt = 0.01).
+
+defaults:
+  - imagenet256_ssfm
+  - _self_
+
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "ablation", "learned-noise", "lift", "em-step"]
+
+model:
+  net:
+    lift: true

@@ -1,0 +1,7 @@
+# FKC temperature-annealing GMM notebook's variance-exploding schedule
+# (GeometricNoiseSchedule, sigma_min=0.01, sigma_max=10*sqrt(temperature)),
+# expressed in this repo's t=0 noise / t=1 data convention (their tau = 1 - t):
+# alpha_t = 1 and sigma_t = sigma_min*sqrt(sigma_diff**(2(1-t)) - 1).
+_target_: src.models.components.schedule.GeometricSchedule
+sigma_min: 0.01
+sigma_max: 10.0

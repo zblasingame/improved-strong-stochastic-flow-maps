@@ -1,0 +1,15 @@
+loss_heatmap:
+  _target_: src.models.callbacks.LossFieldHeatmap
+  every_n_steps: 50 # render + log the heatmaps every N training steps
+  log_prefix: "train/heatmap"
+  keys: # per-bin diagnostics to track (absent keys skipped silently)
+    - diagonal_loss_by_s # raw diagonal MSE, binned by start time s (em_step)
+    - diagonal_loss_by_h # raw diagonal MSE, binned by step size h (em_step)
+    - diagonal_loss_by_t # raw diagonal MSE, binned by t (instantaneous)
+    - distillation_loss_by_s # raw distillation MSE, binned by s
+    - distillation_loss_by_h # raw distillation MSE, binned by h
+    - psd_loss_by_s # raw PSD MSE, binned by s
+    - psd_loss_by_h # raw PSD MSE, binned by h
+    - psd_loss_by_t # raw PSD MSE, binned by t
+    - uncertainty_mlp_by_s # merged diagonal+distill u_mlp weight, binned by s
+    - uncertainty_mlp_by_h # merged diagonal+distill u_mlp weight, binned by h

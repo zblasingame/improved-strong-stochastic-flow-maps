@@ -1,0 +1,65 @@
+defaults:
+  - schedule: geometric
+  - optimizer: adamw
+
+_target_: src.models.fkc_module.FKCLitModule
+
+# 40 Gaussian modes from the FKC temperature-annealing notebook (loc_scaling=40,
+# log_var_scaling=2, /50 normalization -> modes on [-0.8, 0.8], std softplus(2)/50)
+# with annealed target q^3 (inverse temperature beta=3), on the notebook's
+# variance-exploding GeometricNoiseSchedule(0.01, 10). Coefficient features are
+# NOT standardized: the raw (t-s)/(2n+1) scaling is kept.
+net:
+  _target_: src.models.components.fkc.network.AugmentedFKCMLP
+  hidden_size: 512
+  depth: 6
+  max_degree: 3
+  time_emb_size: 128
+  # Unit-variance Brownian features on every interval: raw coefficient std spans
+  # ~2000x across the VE clock, hiding late-interval path information.
+  normalize_coefficients: true
+  # Feature conditioning only: the GMM, SDE and output units are NOT rescaled.
+  spatial_input_scale: 50.0
+  # Predict geometric-VE denoising noise; convert eps -> score -> drift in code.
+  output_parameterization: score
+  # Endpoint regularization: finite-width mode std, softplus(2) / 50.
+  score_scale_floor: 0.04253856
+
+problem:
+  _target_: src.models.components.fkc.problem.make_fkc_problem
+  case: gaussian40
+  beta: 3
+  schedule: ${model.schedule}
+
+loss:
+  # Improved-MeanFlow objective, score-parameterized: every off-diagonal sample
+  # regresses the interval-average map against the ANALYTIC composed field via
+  # the Eulerian identity (JVP term stop-gradient'd). No EMA self-teacher, so
+  # errors cannot drift self-consistently as in the semigroup loss.
+  # (Semigroup alternative: src.models.components.fkc.loss_psd.FKCWZPSDLoss.)
+  _target_: src.models.components.fkc.loss.FKCWZIMFLoss
+  t0: 0.0
+  degree: 3
+  # Fraction of the batch spent on the diagonal (plain scaled-score FM) anchor.
+  diagonal_fraction: 0.25
+  weight_loss_scale: 1.0
+  # Adaptive per-row loss weighting exponent (the paper run's value).
+  adaptive_power: 0.5
+  schedule: ${model.schedule}
+  huber_delta: null
+  dt: 0.05
+  h_max: 1.0
+  # Exact target states pi_s drawn from the cached 64k-component pool (built
+  # once at fit start) instead of rebuilding the per-sample target every step.
+  state_source: pool
+  pool_num_s: 64
+  pool_per_s: 2048
+  pool_s_range: [0.0, 1.0]
+  time_source: per_sample
+
+optimizer:
+  lr: 4.0e-4
+
+scheduler: null
+ema_decay: 0.999
+compile: false

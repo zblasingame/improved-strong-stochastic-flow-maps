@@ -1,0 +1,8 @@
+# ReduceLROnPlateau (epoch interval, monitors train/loss).
+_target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+_partial_: true
+mode: min
+factor: 0.5
+patience: 10
+# Lightning scheduler wiring is configured in `configure_optimizers`; this
+# scheduler is epoch-interval and monitors `train/loss`.

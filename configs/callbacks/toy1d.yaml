@@ -1,0 +1,23 @@
+defaults:
+  - model_checkpoint
+  - model_summary
+  - rich_progress_bar
+  - _self_
+
+model_checkpoint:
+  dirpath: ${paths.output_dir}/checkpoints
+  filename: "epoch_{epoch:03d}"
+  monitor: "train/loss"
+  mode: "min"
+  save_last: True
+  auto_insert_metric_name: False
+
+toy1d_strong:
+  _target_: src.models.toy1d_callbacks.Toy1DStrongErrorCallback
+  num_samples: 4096
+  step_counts: [1, 2, 4, 8, 16, 32]
+  em_steps: 512
+  every_n_epochs: 20
+  seed: 0
+  log_key: "val/strong_error"
+  use_ema: true

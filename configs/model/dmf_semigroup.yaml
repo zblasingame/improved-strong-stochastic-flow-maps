@@ -1,0 +1,38 @@
+defaults:
+  - net: dmf_xl2
+  - schedule: linear
+  - optimizer: adamw
+  - scheduler: reduce_on_plateau
+
+_target_: src.models.ei_euler_module.EIEulerLitModule
+
+# Table 6 (Lee et al., DMF): AdamW β2=0.95 (the shared adamw.yaml default is 0.99).
+optimizer:
+  betas: [0.9, 0.95]
+
+loss:
+  _target_: src.models.components.losses.DMFEIEulerAnchorPSDLoss
+  schedule: ${model.schedule}
+  p: 0.75
+  cfg_prob: 0.1
+  # Diagonal anchor = form x source (see losses.normalize_guidance): the
+  # 'mg' mix v_data + omega (v_cond - v_uncond) with the cond/uncond pair
+  # read from the EMA shadow's diagonal head. The 75% PSD branch always
+  # distills the EMA interval head over two Chen-coupled half-steps.
+  guidance: mg
+  guidance_source: ema
+  omega: 0.6
+  g_min: 0.3
+  g_max: 1.0
+  degree: 3
+  epsilon: 0.01
+  dt: 0.05
+  h_max: 1.0
+  use_uncertainty_weighting: false
+  uncertainty_form: log_eps
+
+# Classical (constant-decay) EMA teacher, per the DMF reference.
+ema_decay: 0.9999
+scheduler_interval: epoch
+scheduler_monitor: train/loss
+compile: true

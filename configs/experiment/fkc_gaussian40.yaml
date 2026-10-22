@@ -1,0 +1,28 @@
+# @package _global_
+
+# Single FKC run matching the FKC temperature-annealing reference: 40 Gaussian
+# modes (loc_scaling=40, log_var_scaling=2, /50 normalization), annealed target
+# q^3 (beta=3), the notebook's variance-exploding GeometricNoiseSchedule(0.01,10)
+# in flow-matching time, unnormalized coefficients.
+# Run with: python -m src.train experiment=fkc_gaussian40
+
+defaults:
+  - override /data: fkc_toy2d
+  - override /model: fkc_gaussian40
+  - override /callbacks: fkc_toy2d
+  - override /trainer: default
+
+tags: ["toy2d", "fkc", "gaussian40", "beta3", "geometric-ve", "no-norm", "single-run"]
+
+seed: 12345
+
+trainer:
+  max_epochs: 100
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 10
+  inference_mode: False
+
+data:
+  batch_size: 512
+  train_size: 102400
+  val_size: 4096

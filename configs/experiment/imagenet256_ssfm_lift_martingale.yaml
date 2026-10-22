@@ -1,0 +1,20 @@
+# @package _global_
+
+# Ablation ladder (paper Table 1, "+ closed-form martingale"): exponential lift
+# with the closed-form lifted noise (1 / alpha_t) int alpha nu dW (the EI-Euler
+# map), trained with the semigroup loss and the reference SSFM small-step
+# Euler--Maruyama diagonal (em_dt = 0.01) against the teacher SDE. Replacing the
+# EM-step diagonal with the frozen-teacher drift anchor gives
+# imagenet256_ssfm_lift_martingale_drift ("+ drift matching").
+
+defaults:
+  - imagenet256_ssfm_lift_martingale_drift
+  - _self_
+
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "ablation", "closed-noise", "lift", "em-step"]
+
+model:
+  loss:
+    _target_: src.models.components.losses.DMFAblationPSDLoss
+    diagonal: em_step
+    em_dt: 0.01

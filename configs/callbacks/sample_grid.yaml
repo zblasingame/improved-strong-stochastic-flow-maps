@@ -1,0 +1,16 @@
+sample_grid:
+  _target_: src.models.callbacks.SampleGridCallback
+  max_steps: 16 # finest step count (power of two); rows shown: 16, 8, 4, 2, 1
+  num_samples: 8 # images per row, shared across all resolutions
+  degree: 1 # polynomial Brownian degree N per flow-map step
+  every_n_epochs: 5 # render every N epochs
+  seed: 0 # RNG seed for reproducible latents/Brownian motion (null = fresh each time)
+  log_key: "val/sample_grid"
+  sampler: "euler" # FM sampling scheme: "euler" (ODE) or "em" (Euler-Maruyama SDE)
+  log_both_solvers: false # when true, log both ODE and SDE grids (FM only)
+  log_independent_brownian_grid: false # second grid: fresh Brownian path per step-count row
+  num_classes: null # inferred from labeled nets; null keeps unconditional models unchanged
+  label_seed: 0 # fixed random classes reused for every grid
+  cfg_scale: null # experiment may override
+  log_on_sanity: false
+  use_ema: true

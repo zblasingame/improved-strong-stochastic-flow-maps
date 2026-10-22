@@ -1,0 +1,9 @@
+_target_: src.data.latent_imagenet_datamodule.LatentImageNetDataModule
+
+data_dir: ${oc.env:LATENT_OUTPUT_DIR,${paths.data_dir}/imagenet256-sd-vae-ft-mse}
+batch_size: 256
+num_workers: 8
+pin_memory: true
+persistent_workers: true
+prefetch_factor: 2
+multiprocessing_context: spawn

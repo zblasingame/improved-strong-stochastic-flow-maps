@@ -1,0 +1,28 @@
+defaults:
+  - model_checkpoint
+  - model_summary
+  - rich_progress_bar
+  - _self_
+
+model_checkpoint:
+  dirpath: ${paths.output_dir}/checkpoints
+  filename: "epoch_{epoch:03d}"
+  monitor: "train/loss"
+  mode: "min"
+  save_last: True
+  auto_insert_metric_name: False
+
+model_summary:
+  max_depth: -1
+
+# Live monitoring: exact target vs learned weighted samples at several NFE,
+# with centered log-weight histograms and ESS, logged to WandB every 10 epochs.
+fkc_sample_plot:
+  _target_: src.models.fkc_callbacks.FKCSamplePlotCallback
+  num_samples: 2048
+  step_counts: [1, 4, 16, 64]
+  sde_steps: 256
+  every_n_epochs: 10
+  seed: 0
+  log_key: "val/fkc_samples"
+  use_ema: true

@@ -1,0 +1,21 @@
+# @package _global_
+
+# Ablation ladder (paper Table 1, "SSFM"): the closest analogue of SSFM
+# (McCallum et al.) fine-tuned from DMF-XL/2+. A learned diffusion head
+# g_st (.) W_{s,t} (random init, as in the reference SSFM) on the plain
+# Euler--Maruyama step x + h b_st + g W (no exponential lift), trained with the
+# semigroup loss and the reference small-step Euler--Maruyama diagonal
+# (em_dt = 0.01) against the teacher SDE. Everything else is shared with
+# imagenet256_ssfm_lift_martingale_drift.
+
+defaults:
+  - imagenet256_ssfm_lift_martingale
+  - _self_
+
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "ablation", "learned-noise", "no-lift", "em-step"]
+
+model:
+  net:
+    lift: false
+    diffusion_head: true
+    diffusion_init: random

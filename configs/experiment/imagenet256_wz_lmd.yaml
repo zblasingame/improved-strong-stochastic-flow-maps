@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - imagenet256_wz_imf
+  - _self_
+
+# Wong--Zakai AYF-LMD Lagrangian objective (Sabour et al. 2025) in place of
+# WZ-iMF; same recipe otherwise (frozen-teacher anchor, batch 64 x 2, 100k
+# steps). Uncertainty weighting stays off: the bilinear LMD objective is
+# signed, so the log-variance reweighting does not apply (the loss rejects it).
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "wz-ei", "lmd"]
+
+model:
+  loss:
+    _target_: src.models.components.losses.DMFWZEILMDAnchorLoss
+    use_uncertainty_weighting: false

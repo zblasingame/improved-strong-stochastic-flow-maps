@@ -1,0 +1,10 @@
+_target_: src.data.toy1d_datamodule.Toy1DNoiseDataModule
+
+# 1D non-linear SDE toy (arXiv:2606.01086 Sec. 4.1): the "data" is only a
+# standard-normal shape template; the loss simulates X_s ~ p_s from the
+# known SDE on the fly.
+train_val_test_split: [100000, 4096, 4096]
+batch_size: 4096
+num_workers: 0
+pin_memory: False
+seed: 0

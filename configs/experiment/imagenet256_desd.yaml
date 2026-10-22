@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - imagenet256_ssfm_lift_martingale_drift
+  - _self_
+
+# Discretized Eulerian (dESD) objective on the improved parameterization: the
+# semigroup recipe (frozen-teacher drift anchor, uncertainty weighting, batch
+# 64 x 2, 100k steps) with the off-diagonal term replaced by the stopped
+# small-substep ESD target (split at m = s + delta).
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "lift", "discrete-esd"]
+
+model:
+  loss:
+    _target_: src.models.components.losses.DMFEIEulerAnchorDiscreteESDLoss

@@ -1,0 +1,2 @@
+_target_: src.models.components.schedule.LinearSchedule
+noise_scale: 1.0

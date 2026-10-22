@@ -1,0 +1,23 @@
+# @package _global_
+
+# 1D non-linear SDE form grid (arXiv:2606.01086 Sec. 4.1):
+# drift matching + (PSD|ESD|LSD) on (WZ|DS|None) arms.
+# Run with: python -m src.train experiment=toy1d model.loss.arm=wz model.loss.distillation=esd
+
+defaults:
+  - override /data: toy1d
+  - override /model: toy1d
+  - override /callbacks: toy1d
+  - override /trainer: default
+
+tags: ["toy1d", "nonlinear-sde", "forms", "linear", "adamw"]
+
+seed: 12345
+
+trainer:
+  max_epochs: 200
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 20
+
+data:
+  batch_size: 4096

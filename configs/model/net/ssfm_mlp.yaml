@@ -1,0 +1,8 @@
+# Two-time MLP flow-map backbone for the toy (1D SDE / FKC) experiments.
+_target_: src.models.components.mlp.SSFM_MLP
+dim: 2
+hidden_size: 256
+depth: 4
+time_emb_size: 128
+max_degree: 4
+parameterization: euler

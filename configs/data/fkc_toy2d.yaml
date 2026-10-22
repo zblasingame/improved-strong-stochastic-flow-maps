@@ -1,0 +1,10 @@
+_target_: src.data.fkc_datamodule.FKCToy2DDataModule
+
+# Analytic FKC training samples states from the exact problem marginals, so the
+# datamodule only sets the batch size and the number of optimizer steps.
+batch_size: 4096
+train_size: 409600
+val_size: 4096
+num_workers: 0
+pin_memory: False
+seed: 0

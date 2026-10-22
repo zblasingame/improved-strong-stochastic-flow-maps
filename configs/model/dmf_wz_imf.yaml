@@ -1,0 +1,53 @@
+defaults:
+  # Fixed degree-3 (W, H, K) coefficient fields, [X, W, H, K] -> C residual
+  # added as X + h*C (the fixed_psd design); Triton dual-JVP base attention
+  # for the iMF forward-mode AD. The adapter hard-requires degree-3 features,
+  # so model.loss.degree must stay 3.
+  - net: dmf_xl2
+  - schedule: linear
+  - optimizer: adamw
+  - scheduler: reduce_on_plateau
+
+# DMF Wong-Zakai improved-MeanFlow arm: the EI SDE is realized as a degree-3
+# polynomial-Brownian random ODE (martingale increment INSIDE the map, no
+# Doss-Sussmann reconstruction), and the interval-average velocity head is
+# trained with the iMF compound against the guidance-mixed DMF teacher field.
+# Sampling chains the EI-Doss recursion, which in physical X units evaluates
+# exactly the WZ-EI map per step. See src/models/components/losses/dmf_wz_imf.py.
+_target_: src.models.wz_module.WZEISussmannLitModule
+
+# Table 6 (Lee et al., DMF): AdamW beta2=0.95.
+optimizer:
+  betas: [0.9, 0.95]
+
+loss:
+  _target_: src.models.components.losses.DMFWZEIIMFAnchorLoss
+  schedule: ${model.schedule}
+  p: 0.75
+  cfg_prob: 0.1
+  # Target field = form x source (see losses.normalize_guidance): 'direct'
+  # evaluates ONE stopped forward of the source at the student's assigned
+  # labels. Source 'frozen' = the pretrained DMF teacher with LoRA disabled
+  # -- the upstream checkpoint was trained with model guidance (g_type='mg'),
+  # so its conditional forward IS the guided field, and both the diagonal
+  # anchor and the iMF target collapse to a single teacher forward per
+  # sample (1 NFE; no cond/uncond pair). omega, g_min, and g_max are unused
+  # by the direct form. Legacy spelling: guidance: pretrained.
+  guidance: direct
+  guidance_source: frozen
+  degree: 3
+  epsilon: 0.01
+  dt: 0.05
+  h_max: 1.0
+  zeta_anneal_steps: 0
+  # Kendall et al. learned per-sample log-variance reweighting of both branch
+  # losses (numerically stable log_eps form), as in the DMF PSD anchor runs.
+  use_uncertainty_weighting: true
+  uncertainty_form: log_eps
+
+# Classical (constant-decay) EMA teacher, per the DMF reference.
+ema_decay: 0.9999
+scheduler_interval: epoch
+scheduler_monitor: train/loss
+# Keep Dynamo outside the functorch/Triton JVP boundary.
+compile: false

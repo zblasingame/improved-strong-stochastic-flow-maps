@@ -1,0 +1,33 @@
+# Loaded via `/callbacks@callbacks.fid: latent_fid` (package redirect), so fields
+# must be flat rather than wrapped in another `fid` mapping.
+_target_: src.models.latent_callbacks.LatentFIDCallback
+vae_name: stabilityai/sd-vae-ft-mse
+# Training-time FID monitor. Point FID_REF_STATS at the ImageNet-256 torchmetrics
+# reference statistics (``imgnet256_torchmetrics.pt``, see README); FID is skipped
+# with a warning when the file is missing.
+ref_stats_path: null
+torch_fidelity_ref_stats_path: ${oc.env:FID_REF_STATS,null}
+num_samples: 8192
+sampling_steps: [4, 16]
+degree: ${model.loss.degree}
+batch_size: 128
+feature: 2048
+every_n_epochs: null
+every_n_steps: 10000
+# Two-tier cadence (opt-in): every_n_steps runs the mini sweep over
+# mini_sampling_steps, and full_every_n_steps runs the full sampling_steps
+# sweep (which replaces -- not adds to -- the mini sweep at coincident steps).
+# Each full sweep logs fid_ema_gm (geometric mean of EMA FIDs over
+# sampling_steps); with checkpoint_dir set, current.ckpt is saved at every
+# event and best.ckpt whenever fid_ema_gm improves.
+mini_sampling_steps: 4
+full_every_n_steps: null
+checkpoint_dir: null
+seed: 0
+include_ema: true
+include_non_ema: true
+log_prefix: fid_torchvision
+num_classes: 1000
+label_seed: 0
+cfg_scale: null
+log_on_sanity: false

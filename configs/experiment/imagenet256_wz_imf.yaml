@@ -1,0 +1,53 @@
+# @package _global_
+
+defaults:
+  - /callbacks@callbacks.sample_grid: latent_sample_grid
+  - /callbacks@callbacks.fid: latent_fid
+  - override /data: imagenet256_latent
+  - override /model: dmf_wz_imf
+  - override /trainer: default
+
+tags: ["imagenet", "256", "latent", "dmf-xl2", "dmf-student", "lora", "wz-ei", "imf", "degree3"]
+
+seed: 42
+
+# Paper setting: one GPU, 100k steps, batch 64 x 2 gradient accumulation.
+trainer:
+  accelerator: gpu
+  devices: 1
+  strategy: auto
+  precision: bf16-mixed
+  max_epochs: 200
+  max_steps: 100000
+  accumulate_grad_batches: 2
+  gradient_clip_val: 1.0
+
+data:
+  batch_size: 64
+  num_workers: 8
+
+# Two-file checkpointing driven by the FID callback: the epoch-best
+# (train/loss) and permanent 50k-step snapshot callbacks are disabled.
+# current.ckpt (full trainer state + EMA) is written at every FULL sweep
+# (every full_every_n_steps); best.ckpt (weights only) is rewritten
+# whenever a full sweep improves the EMA geometric-mean FID. Mini sweeps
+# (every every_n_steps) are diagnostic-only: no checkpoint writes.
+callbacks:
+  model_checkpoint: null
+  step_checkpoint: null
+  sample_grid:
+    log_on_sanity: false
+  model_summary:
+    max_depth: 1
+  fid:
+    sampling_steps: [1, 2, 4, 8]
+    every_n_steps: 10000
+    full_every_n_steps: 25000
+    mini_sampling_steps: 4
+    include_ema: true
+    include_non_ema: true
+    checkpoint_dir: ${paths.output_dir}/checkpoints
+  # Disabled WZ-DMF default: the strong-error sampling sweep cost ~2.7 min
+  # every 1k steps (~8% of wall clock) and duplicates what the FID sweep
+  # already tracks.
+  strong_convergence: null

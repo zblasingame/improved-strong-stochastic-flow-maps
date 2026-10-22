@@ -1,0 +1,13 @@
+# @package _global_
+
+defaults:
+  - imagenet256_desd
+  - _self_
+
+# Discretized Lagrangian (dLSD) counterpart of imagenet256_desd (split at
+# m = t - delta); same recipe otherwise.
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "lift", "discrete-lsd"]
+
+model:
+  loss:
+    _target_: src.models.components.losses.DMFEIEulerAnchorDiscreteLSDLoss

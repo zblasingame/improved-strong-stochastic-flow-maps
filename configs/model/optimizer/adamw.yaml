@@ -1,0 +1,9 @@
+# Plain AdamW optimizer — faithful to the stochastic-flow-map reference
+# (optax RAdam, lr=1e-4, b2=0.99, grad-clip 1.0). Use with `uncertainty_form=reference`
+# and `model/scheduler=cosine_warmup` for a reference reproduction run.
+_target_: torch.optim.AdamW
+_partial_: true
+lr: 1.0e-4
+betas: [0.9, 0.99]
+eps: 1.0e-8
+weight_decay: 0.0

@@ -1,0 +1,15 @@
+strong_convergence:
+  _target_: src.models.callbacks.StrongConvergenceCallback
+  num_samples: 128
+  batch_size: 32
+  em_steps: 100
+  step_counts: [1, 2, 4, 8, 16]
+  degree: 3
+  every_n_epochs: 15
+  every_n_steps: null
+  initial_steps: []
+  seed: 0
+  plot_key: "val/strong_convergence"
+  num_classes: null
+  label_seed: 0
+  log_on_sanity: false

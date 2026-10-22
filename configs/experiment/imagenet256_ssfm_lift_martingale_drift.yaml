@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - imagenet256_wz_imf
+  - override /model: dmf_semigroup
+  - _self_
+
+# Ablation ladder (paper Table 1, "+ drift matching"): SSFM with the improved
+# parameterization -- exponential lift, closed-form lifted martingale and the
+# frozen-DMF drift-matching diagonal -- trained with the semigroup loss. Same
+# student, recipe and uncertainty weighting as iSSFM; swapping the semigroup
+# loss for WZ-iMF gives iSSFM (imagenet256_wz_imf).
+tags: ["imagenet", "256", "dmf-xl2", "degree3", "ablation", "lift", "semigroup"]
+model:
+  net:
+    degree: 3
+  loss:
+    # Direct form: one stopped forward of the frozen pretrained teacher.
+    guidance: direct
+    guidance_source: frozen
+    use_uncertainty_weighting: true
+    degree: 3
